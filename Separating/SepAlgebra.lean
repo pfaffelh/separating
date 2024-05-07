@@ -5,6 +5,7 @@ import Mathlib.Analysis.Fourier.FourierTransform
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 import Mathlib.Data.Complex.Exponential
 import Mathlib.Analysis.RCLike.Basic
+import Mathlib.Analysis.NormedSpace.Exponential
 
 /-!
 # Separating algebras of bounded continuous functions
@@ -51,7 +52,3 @@ theorem subalgebra_separating_fromSeparatesPoints (M : StarSubalgebra ℝ C(α, 
   simp [IsSeparating]
 
   sorry
-
-def xexp2 := fun (x : ℝ) => x * (Real.exp (-x*x))
-
-lemma xexpx2_bounded : ∃ (C : ℝ), ∀ (x y : ℝ), xexp2 x < C
