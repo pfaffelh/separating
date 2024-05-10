@@ -19,8 +19,6 @@ The goal of this file is to prove:
 Let 𝕜 ∈ {ℝ, ℂ}, (E, r) be a complete and separable extended pseudo-metric space, and M ⊆ Cb (E, k) be a
 star-sub-algebra that separates points. Then, M is separating.
 
-
-
 -/
 
 open scoped BigOperators
