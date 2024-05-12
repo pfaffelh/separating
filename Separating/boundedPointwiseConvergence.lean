@@ -15,14 +15,16 @@ open scoped BigOperators
 
 open MeasureTheory NNReal ENNReal
 
-@[class] structure boundedPointwise {Ω : Type*} {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace Ω] (P : FiniteMeasure Ω) (X : ℕ → Ω → E) (Z : Ω → E) where
+variable {Ω : Type*} {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace Ω]
+
+@[class] structure boundedPointwise (P : FiniteMeasure Ω) (X : ℕ → Ω → E) (Z : Ω → E) where
  h_bound : ∃ C, ∀ (n : ℕ), ∀ᵐ (ω : Ω) ∂P, ‖X n ω‖ ≤ C
  h_lim : ∀ᵐ (ω : Ω) ∂P, Filter.Tendsto (fun (n : ℕ) => X n ω) Filter.atTop (nhds (Z ω))
 
-lemma integral_constant_finite_of_finiteMeasure {Ω : Type*} {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace Ω] {P : FiniteMeasure Ω} (c : E) : Integrable (fun _ : Ω => c) (MeasureTheory.FiniteMeasure.toMeasure P) := by
+lemma integral_constant_finite_of_finiteMeasure {P : FiniteMeasure Ω} (c : E) : Integrable (fun _ : Ω => c) (MeasureTheory.FiniteMeasure.toMeasure P) := by
 simp only [integrable_const]
 
-lemma tendstoIntegral_of_boundedPointwise {Ω : Type*} {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace Ω] {P : FiniteMeasure Ω} (X : ℕ → Ω → E) (Z : Ω → E) (h_meas1 : ∀ n, MeasureTheory.AEStronglyMeasurable (X n) P) (hbp: boundedPointwise P X Z) : Filter.Tendsto (fun (n : ℕ) => ∫ (ω : Ω), X n ω ∂P) Filter.atTop (nhds (∫ (ω : Ω), Z ω ∂P)) := by
+lemma tendstoIntegral_of_boundedPointwise {P : FiniteMeasure Ω} (X : ℕ → Ω → E) (Z : Ω → E) (h_meas1 : ∀ n, MeasureTheory.AEStronglyMeasurable (X n) P) (hbp: boundedPointwise P X Z) : Filter.Tendsto (fun (n : ℕ) => ∫ (ω : Ω), X n ω ∂P) Filter.atTop (nhds (∫ (ω : Ω), Z ω ∂P)) := by
   cases' hbp.h_bound with c h
   let C : Ω → ℝ := (fun _ => c)
   refine MeasureTheory.tendsto_integral_of_dominated_convergence C h_meas1 (integral_constant_finite_of_finiteMeasure c) h hbp.h_lim

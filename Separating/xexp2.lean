@@ -9,13 +9,10 @@ import Mathlib.Topology.Order.Bounded
 
 lemma l1 {f : ℝ → ℝ} (hf : ∃ C : ℝ, ∀ x, f x ∈ Set.Icc (-C) C) : ∃ (C : ℝ), ∀ (x y : ℝ ), dist (f x)  (f y) ≤ C := by
   cases' hf with C hC
-  refine Metric.isBounded_range_iff.mp ?_
-  have h1 : Set.range f ⊆ Set.Icc (-C) C := by
-    intro y hy
-    cases' hy with x hx
-    rw [← hx]
-    exact hC x
-  exact Bornology.IsBounded.subset (Metric.isBounded_Icc (-C) C) h1
+  refine Metric.isBounded_range_iff.mp (Bornology.IsBounded.subset (Metric.isBounded_Icc (-C) C) ?_)
+  rintro y ⟨x, hx⟩
+  rw [← hx]
+  exact hC x
 
 -- We are going to show that the following is continuous and bounded
 noncomputable

@@ -41,12 +41,7 @@ def IsSeparating (M : Set (α → ℝ)) : Prop :=
 
 def IsSeparatingContinuousClass (M : Set C(α, ℝ)) : Prop := IsSeparating (DFunLike.coe '' M)
 
-theorem subalgebra_separating_fromSeparatesPoints1 (M : Set C(α, ℝ)) : IsSeparatingContinuousClass M := by
-  sorry
-
-theorem subalgebra_separating_fromSeparatesPoints (M : StarSubalgebra ℝ C(α, ℝ)) [MeasurableSpace α] : IsSeparating (DFunLike.coe '' M.carrier) := by
+theorem subalgebra_separating_fromSeparatesPoints (M : StarSubalgebra ℝ (α →ᵇ ℝ)) : IsSeparating (DFunLike.coe '' M.carrier) := by
   intros P Q
-
   simp [IsSeparating]
-
   sorry
