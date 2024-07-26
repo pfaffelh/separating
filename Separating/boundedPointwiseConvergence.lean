@@ -17,19 +17,38 @@ open MeasureTheory NNReal ENNReal
 
 variable {Ω : Type*} {E : Type} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace Ω]
 
-@[class] structure boundedPointwise (P : FiniteMeasure Ω) (X : ℕ → Ω → E) (Z : Ω → E) where
+@[class] structure boundedPointwise (P : Measure Ω) (X : ℕ → Ω → E) (Z : Ω → E) where
  h_bound : ∃ C, ∀ (n : ℕ), ∀ᵐ (ω : Ω) ∂P, ‖X n ω‖ ≤ C
  h_lim : ∀ᵐ (ω : Ω) ∂P, Filter.Tendsto (fun (n : ℕ) => X n ω) Filter.atTop (nhds (Z ω))
 
-lemma integral_constant_finite_of_finiteMeasure {P : FiniteMeasure Ω} (c : E) : Integrable (fun _ : Ω => c) (MeasureTheory.FiniteMeasure.toMeasure P) := by
+lemma integral_constant_finite_of_finiteMeasure {P : Measure Ω} [IsFiniteMeasure P] (c : E)
+    : Integrable (fun _ : Ω => c) P := by
 simp only [integrable_const]
 
-lemma tendstoIntegral_of_boundedPointwise {P : FiniteMeasure Ω} (X : ℕ → Ω → E) (Z : Ω → E) (h_meas1 : ∀ n, MeasureTheory.AEStronglyMeasurable (X n) P) (hbp: boundedPointwise P X Z) : Filter.Tendsto (fun (n : ℕ) => ∫ (ω : Ω), X n ω ∂P) Filter.atTop (nhds (∫ (ω : Ω), Z ω ∂P)) := by
-  cases' hbp.h_bound with c h
+lemma tendstoIntegral_of_boundedPointwise {P : Measure Ω} [IsFiniteMeasure P] (X : ℕ → Ω → E) (Z : Ω → E)
+    (h_meas : ∀ n, MeasureTheory.AEStronglyMeasurable (X n) P) (hbp: boundedPointwise P X Z)
+    : Filter.Tendsto (fun (n : ℕ) => ∫ (ω : Ω), X n ω ∂P) Filter.atTop (nhds (∫ (ω : Ω), Z ω ∂P)) := by
+  have := hbp.h_bound
+  cases' hbp.h_bound with c h_boundc
   let C : Ω → ℝ := (fun _ => c)
-  refine MeasureTheory.tendsto_integral_of_dominated_convergence C h_meas1 (integral_constant_finite_of_finiteMeasure c) h hbp.h_lim
+  refine MeasureTheory.tendsto_integral_of_dominated_convergence
+      C h_meas (integral_constant_finite_of_finiteMeasure c) h_boundc hbp.h_lim
 
+-- not used ?
 @[class] structure boundedPointwise' (X : ℕ → Ω → ℝ≥0∞) (Z : Ω → ℝ≥0∞) where
   h_aefinite : ∀ n, ∀ᵐ (ω : Ω) ∂μ, (X n ω) ≠ ⊤
   h_bound: ∃ C : Set ℝ≥0, Bornology.IsBounded C → ∀ n, ∀ᵐ (ω : Ω) ∂μ, (X n ω).toNNReal ∈ C
   h_conv : ∀ᵐ (ω : Ω) ∂μ, Filter.Tendsto (fun n => X n ω) Filter.atTop (nhds (Z ω))
+
+@[class] structure eventually_boundedPointwise (P : Measure Ω) (X : ℕ → Ω → E) (Z : Ω → E) where
+ h_bound : ∃ C, ∀ᶠ (n : ℕ) in Filter.atTop, (∀ᵐ (ω : Ω) ∂P, ‖X n ω‖ ≤ C)
+ h_lim : ∀ᵐ (ω : Ω) ∂P, Filter.Tendsto (fun (n : ℕ) => X n ω) Filter.atTop (nhds (Z ω))
+
+lemma tendstoIntegral_of_eventually_boundedPointwise {P : Measure Ω} [IsFiniteMeasure P] {X : ℕ → Ω → E} {Z : Ω → E}
+    (h_meas : ∀ᶠ (n : ℕ) in Filter.atTop, MeasureTheory.AEStronglyMeasurable (X n) P)
+    (hbp: eventually_boundedPointwise P X Z)
+    : Filter.Tendsto (fun (n : ℕ) => ∫ (ω : Ω), X n ω ∂P) Filter.atTop (nhds (∫ (ω : Ω), Z ω ∂P)) := by
+  cases' hbp.h_bound with c h_boundc
+  let C : Ω → ℝ := (fun _ => c)
+  apply MeasureTheory.tendsto_integral_filter_of_dominated_convergence
+      C h_meas h_boundc (integral_constant_finite_of_finiteMeasure c) hbp.h_lim

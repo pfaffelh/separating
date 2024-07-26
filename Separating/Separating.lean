@@ -120,10 +120,8 @@ theorem lintegral_of_thickened_indicator_tendsto_indicator_closure
 {δseq : ℕ → ℝ} (δseq_pos : ∀ (n : ℕ), 0 < δseq n) (δseq_lim : Tendsto δseq Filter.atTop (nhds 0)) (A : Set E)
 : Tendsto (fun n => ∫⁻ a, (thickenedIndicatorAux (δseq n) A) a ∂P) atTop (𝓝 (P (closure A))) := by
   have h : MeasurableSet (closure A) := by
-  {
     apply IsClosed.measurableSet
     simp only [isClosed_closure]
-  }
   rw [← lexpectation_indicator (closure A) h]
   apply tendsto_lintegral_of_dominated_convergence
   · intro n
