@@ -38,6 +38,8 @@ lemma dist_le_of_mem_Icc {f : E → ℝ} (hf : ∃ C : ℝ, ∀ x, f x ∈ Set.I
   exact hC x
 
 -- We are going to show that the following is continuous and bounded
+
+/-- docBlame -/
 noncomputable
 def xexp2 := fun x => x * (Real.exp (-x*x))
 
@@ -88,7 +90,7 @@ lemma deriv_of_xexp2 : ∀ x, deriv xexp2 x = (-x * x).exp + x * (-2 * x * (-x *
   rw [← deriv_of_exp2 x]
   apply deriv_mul differentiableAt_id' (differentiable_of_exp2 x)
 
-lemma mul_le_one_of_le_inv {x y : ℝ} (hx : x ≥ 0) (hy : y > 0) : x ≤ y⁻¹ → y * x ≤ 1 := by
+lemma mul_le_one_of_le_inv {x y : ℝ} (hy : y > 0) : x ≤ y⁻¹ → y * x ≤ 1 := by
   intro h
   have := mul_le_mul_of_nonneg_left h (le_of_lt hy)
   rw [CommGroupWithZero.mul_inv_cancel y (ne_of_gt hy)] at this
@@ -118,7 +120,7 @@ lemma lipschitz_of_xexp2 : LipschitzWith 1 xexp2 := by
     have hy : y = x * x := by rfl
     have hy_nonneg : 0 ≤ y := mul_self_nonneg x
     rw [neg_mul, ← hy, mul_assoc, neg_mul, ← hy]
-    apply mul_le_one_of_le_inv (abs_nonneg _) (Real.exp_pos _)
+    apply mul_le_one_of_le_inv (Real.exp_pos _)
     simp [← Real.exp_neg (-y), abs_le]
     constructor
     · have : 2 * y ≤ y.exp := by
@@ -140,14 +142,7 @@ lemma lipschitz_of_xexp2' : ∀ x y, abs (xexp2 x - xexp2 y) ≤ abs (x - y) := 
   rw [dist_edist, dist_edist]
   exact (toReal_le_toReal (edist_ne_top _ _) (edist_ne_top _ _)).mpr lipschitz
 
--- not used anymore
-noncomputable
-def xexpx2' : BoundedContinuousFunction ℝ ℝ where
-  toFun := xexp2
-  continuous_toFun := Continuous.mul continuous_id'
-      (Continuous.comp' Real.continuous_exp (Continuous.mul continuous_neg continuous_id'))
-  map_bounded' := dist_le_of_mem_Icc bounded_of_xexp2'
-
+/-- docBlame -/
 noncomputable
 def expeps2 {g : E → ℝ} (hg: Continuous g) (ε : ℝ): ContinuousMap E ℝ where
   toFun := (fun x => (g x) * (- (ε * (g x) * (g x))).exp)
@@ -208,15 +203,6 @@ lemma lipschitz_of_expeps2 {f g : E → ℝ} (hf: Continuous f) (hg: Continuous 
   apply le_trans (hxexp2 x) _
   rw [mul_le_mul_left (Real.sqrt_pos_of_pos hε)]
 
--- not used anymore
-noncomputable
-def expeps2' {g : E → ℝ} (hg: Continuous g) {ε : ℝ} (pos : ε > 0): BoundedContinuousFunction E ℝ where
-  toFun := (fun x => (g x) * (- (ε * (g x) * (g x))).exp)
-  continuous_toFun := by continuity
-  map_bounded' := by
-    use 2 * ε.sqrt⁻¹
-    exact bounded'_of_expeps2 hg pos
-
 lemma tendsto_expeps2 {g : E → ℝ} (hg: Continuous g) (x : E)
     : Tendsto (fun ε => expeps2 hg ε x) (nhds 0) (nhds (g x)) := by
   have : g x = (fun ε : ℝ => expeps2 hg ε x) 0 := by
@@ -254,3 +240,5 @@ lemma tendsto_integral_expeps2 (g : BoundedContinuousFunction E ℝ) (P : Finite
     apply StronglyMeasurable.aestronglyMeasurable (Continuous.stronglyMeasurable _)
     continuity
   exact tendstoIntegral_of_eventually_boundedPointwise (eventually_of_forall hmeas) hbp
+
+#lint

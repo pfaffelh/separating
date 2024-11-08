@@ -3,7 +3,6 @@ import Mathlib.MeasureTheory.Measure.FiniteMeasure
 import Mathlib.MeasureTheory.Measure.Regular
 import Mathlib.Topology.ContinuousFunction.Compact
 import Mathlib.Topology.ContinuousFunction.StoneWeierstrass
-import Mathlib.Topology.TietzeExtension
 import Mathlib.MeasureTheory.Integral.SetIntegral
 import Separating.xexp2_onE
 import Separating.tight_singleton
@@ -30,8 +29,8 @@ open MeasureTheory NNReal ENNReal BoundedContinuousFunction Filter
 variable {E 𝕜: Type*} [MeasurableSpace E] [PseudoEMetricSpace E] [BorelSpace E] [RCLike 𝕜]
     {P P' : Measure E} [IsFiniteMeasure P] [IsFiniteMeasure P']
 
-lemma line1357_lemma [CompleteSpace E] [SecondCountableTopology E] (f : C(E, ℝ))
-    {K : Set E} (hK : MeasurableSet K) {ε : ℝ} (hε : ε > 0)  (hKP : P Kᶜ < ε.toNNReal)
+lemma line1357_lemma (f : C(E, ℝ)) {K : Set E} (hK : MeasurableSet K)
+    {ε : ℝ} (hε : ε > 0)  (hKP : P Kᶜ < ε.toNNReal)
     : abs (∫ (x : E), (expeps2 f.continuous ε) x ∂P
     - ∫ x in K, (expeps2 f.continuous ε) x ∂P) < ε.sqrt := by
   have hbound : ∀ᵐ (x : E) ∂P, ‖(expeps2 f.continuous ε) x‖ ≤ ε.sqrt⁻¹ :=
@@ -47,7 +46,7 @@ lemma line1357_lemma [CompleteSpace E] [SecondCountableTopology E] (f : C(E, ℝ
   exact (_root_.mul_lt_mul_right (inv_pos.mpr (Real.sqrt_pos.mpr hε))).mpr
       (ENNReal.toReal_lt_of_lt_ofReal hKP)
 
-lemma line4_lemma [CompleteSpace E] [SecondCountableTopology E] {A : Subalgebra ℝ C(E, ℝ)} {ε : ℝ}
+lemma line4_lemma {A : Subalgebra ℝ C(E, ℝ)} {ε : ℝ}
     (hε : ε > 0) (hbound : ∀ g ∈ A, ∃ C, ∀ x y : E, dist (g x) (g y) ≤ C)
     (heq : ∀ g ∈ A, ∫ (x : E), (g : E → ℝ) x ∂P = ∫ (x : E), (g : E → ℝ) x ∂P')
     : ∀ (g : A), ∫ (x : E), (expeps2 (g : C(E, ℝ)).continuous ε) x ∂P
@@ -71,7 +70,7 @@ lemma line4_lemma [CompleteSpace E] [SecondCountableTopology E] {A : Subalgebra 
   apply tendsto_nhds_unique (Plimexp gb hε P) limP
 
 lemma line26_lemma {K : Set E} (hK : IsCompact K) (h'K : MeasurableSet K) (f g : C(E, ℝ))
-    {ε δ : ℝ} (hε : ε > 0) (_ : δ > 0) {P : Measure E} [hP : IsFiniteMeasure P]
+    {ε δ : ℝ} (hε : ε > 0) {P : Measure E} [hP : IsFiniteMeasure P]
     (hfg : ∀ x ∈ K, abs (g x - f x) < δ)
     : abs (∫ x in K, (expeps2 g.continuous ε) x ∂P
         - ∫ x in K, (expeps2 f.continuous ε) x ∂P) ≤ δ * (P K).toReal := by
@@ -150,18 +149,18 @@ lemma key_lemma [CompleteSpace E] [SecondCountableTopology E] (f : BoundedContin
   have line2 : abs (∫ x in K, (expeps2 f.continuous ε) x ∂P
       - ∫ x in K, (expeps2 g.continuous ε) x ∂P) ≤ ε.sqrt := by
     rw [abs_sub_comm]
-    apply le_trans (line26_lemma hKco (IsClosed.measurableSet hKcl) f g hε pos hgapprox)
+    apply le_trans (line26_lemma hKco (IsClosed.measurableSet hKcl) f g hε hgapprox)
     rw [mul_assoc]
     apply mul_le_of_le_one_right (le_of_lt (Real.sqrt_pos_of_pos hε))
-    apply inv_mul_le_one_of_le (le_max_of_le_left _) (le_of_lt  pos_of_measure)
+    apply inv_mul_le_one_of_le (le_max_of_le_left _) (le_of_lt pos_of_measure)
     exact (ENNReal.toReal_le_toReal (measure_ne_top P _) (measure_ne_top P _)).mpr
         (measure_mono (Set.subset_univ _))
   have line6 : abs (∫ x in K, (expeps2 g.continuous ε) x ∂P'
       - ∫ x in K, (expeps2 f.continuous ε) x ∂P') ≤ ε.sqrt := by
-    apply le_trans (line26_lemma hKco (IsClosed.measurableSet hKcl) f g hε  pos hgapprox)
+    apply le_trans (line26_lemma hKco (IsClosed.measurableSet hKcl) f g hε hgapprox)
     rw [mul_assoc]
     apply mul_le_of_le_one_right (le_of_lt (Real.sqrt_pos_of_pos hε))
-    apply inv_mul_le_one_of_le (le_max_of_le_right _) (le_of_lt  pos_of_measure)
+    apply inv_mul_le_one_of_le (le_max_of_le_right _) (le_of_lt pos_of_measure)
     exact (ENNReal.toReal_le_toReal (measure_ne_top P' _) (measure_ne_top P' _)).mpr
         (measure_mono (Set.subset_univ _))
   have line4 : abs (∫ (x : E), (expeps2 g.continuous ε) x ∂P
@@ -232,3 +231,5 @@ theorem Subalgebra.separatesMeasures_of_separatesPoints [CompleteSpace E] [Secon
       (nhds (abs (∫ (x : E), f x ∂↑P - ∫ (x : E), f x ∂↑P'))) :=
     Tendsto.abs (Filter.Tendsto.sub (tendsto_integral_expeps2 f P) (tendsto_integral_expeps2 f P'))
   apply eq_of_abs_sub_eq_zero (tendsto_nhds_unique lim2 lim1)
+
+#lint

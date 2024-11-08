@@ -63,7 +63,6 @@ lemma exists_mem_subalgebra_near_continuous_on_compact_of_separatesPoints (f : C
   let AK : Subalgebra ℝ C(K, ℝ) := Subalgebra.map restrict_on_K A
   have hsep : AK.SeparatesPoints := by
     intro x y hxy
-    have := hA (Subtype.coe_ne_coe.mpr hxy)
     obtain ⟨_, ⟨g, hg1, hg2⟩, hg_sep⟩ := hA (Subtype.coe_ne_coe.mpr hxy)
     simp only [Set.mem_image, SetLike.mem_coe, exists_exists_and_eq_and]
     use restrict_on_K g
@@ -80,11 +79,11 @@ lemma exists_mem_subalgebra_near_continuous_on_compact_of_separatesPoints (f : C
       AK hsep (K.restrict f) (ContinuousOn.restrict (Continuous.continuousOn f.continuous)) ε pos
   obtain ⟨g, hgA, hgKAK⟩ := Subalgebra.mem_map.mp hgKAK
   use g, hgA
-  --constructor
   intro x hxK
   have eqg : g x = gK ⟨x, hxK⟩ := by
     rw [← hgKAK]
     rfl
   rw [eqg]
   exact hgapprox ⟨x, hxK⟩
-  --· exact hbound g hgA
+
+#lint
